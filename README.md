@@ -1,91 +1,121 @@
-# DIO - Trilha .NET - Banco de Dados
-www.dio.me
+<p align="center">
+  <img src="assets/claquete.png" width="96" alt="Claquete">
+</p>
 
-## Desafio de projeto
-Para este desafio, você precisará usar seus conhecimentos adquiridos no módulo de banco de dados, da trilha .NET da DIO.
+<h1 align="center">Claquete</h1>
 
-## Contexto
-Você é responsável pelo banco de dados de um site de filmes, onde são armazenados dados sobre os filmes e seus atores. Sendo assim, foi solicitado para que você realize uma consulta no banco de dados com o objetivo de trazer alguns dados para análises.
+<p align="center">
+  Acervo de filmes com catálogo, elenco, painel de estatísticas e um laboratório de consultas SQL executadas ao vivo.<br>
+  <b>.NET 9 · Minimal API · Dapper · SQLite / SQL Server · HTML + CSS + JavaScript</b>
+</p>
 
-## Proposta
-Você precisará realizar 12 consultas ao banco de dados, cada uma retornando um tipo de informação.
-O seu banco de dados está modelado da seguinte maneira:
+---
 
-![Diagrama banco de dados](Imagens/diagrama.png)
+## Sobre
 
-As tabelas sao descritas conforme a seguir:
+O Claquete nasceu de um banco relacional de filmes (filmes, atores, gêneros e suas tabelas associativas) e virou um sistema completo:
 
-**Filmes**
+- **Catálogo**: busca por nome que ignora acentos e maiúsculas ("genio" encontra *Gênio Indomável*), filtros por gênero, ano e duração, e ordenação.
+- **Detalhe do filme**: gêneros, elenco com papéis, edição, exclusão e escalação de novos atores.
+- **Elenco**: lista de atores e atrizes com filtro, filmografia de cada um e cadastro.
+- **Painel**: indicadores, lançamentos por ano, filmes e duração média por década, filmes por gênero, recordes e lacunas do acervo.
+- **Laboratório SQL**: as 12 consultas do projeto com realce de sintaxe e o resultado lido do banco na hora.
 
-Tabela responsável por armazenar informações dos filmes.
+As decisões de produto (visão, personas, jornadas, sequenciador e MVP) estão no [Lean Inception](docs/lean-inception.md).
 
-**Atores**
+## Como executar
 
-Tabela responsável por armazenar informações dos atores.
+### Com um clique (Windows)
+Dê dois cliques em **`Abrir Claquete.cmd`** (ou no atalho *Claquete* da Área de Trabalho). O servidor sobe e o navegador abre em `http://localhost:5190`.
 
-**Generos**
+### Pelo terminal
+Pré-requisito: [.NET 9 SDK](https://dotnet.microsoft.com/download).
 
-Tabela responsável por armazenar os gêneros dos filmes.
+```bash
+dotnet run --project src/Claquete.Api
+```
 
-**ElencoFilme**
+Na primeira execução, o banco SQLite é criado em `src/Claquete.Api/dados/claquete.db` e populado com o acervo original. Para voltar ao estado inicial, apague essa pasta.
 
-Tabela responsável por representar um relacionamento do tipo muitos para muitos entre filmes e atores, ou seja, um ator pode trabalhar em muitos filmes, e filmes
-podem ter muitos atores.
+### Testes
 
-**FilmesGenero**
+```bash
+dotnet test
+```
 
-Tabela responsável por representar um relacionamento do tipo muitos para muitos entre filmes e gêneros, ou seja, um filme pode ter mais de um gênero, e um genêro pode fazer parte de muitos filmes.
+São 16 testes de integração: as 12 consultas conferidas contra os resultados esperados, mais busca, filtros, cadastro completo, validações e estatísticas.
 
-## Preparando o banco de dados
-Você deverá executar o arquivo **Script Filmes.sql** em seu banco de dados SQL Server, presente na pasta Scripts deste repositório ([ou clique aqui](Script%20Filmes.sql)). Esse script irá criar um banco chamado **Filmes**, contendo as tabelas e os dados necessários para você realizar este desafio.
+## Usando o SQL Server
 
-## Objetivo
-Você deverá criar diversas consultas, com o objetivo de retornar os dados a seguir. Abaixo de cada pedido tem o retorno esperado. O seu retorno deve ser igual ao da imagem.
+1. Rode `database/sqlserver/01-criar-banco.sql` no SQL Server (cria o banco **Filmes** com os dados).
+2. Opcional: rode `database/sqlserver/03-melhorias.sql` para adicionar chaves estrangeiras e índices.
+3. Em `src/Claquete.Api/appsettings.json`, troque o provedor:
 
-## 1 - Buscar o nome e ano dos filmes
+```json
+"Banco": {
+  "Provedor": "SqlServer",
+  "ConnectionString": "Server=localhost;Database=Filmes;Trusted_Connection=True;TrustServerCertificate=True"
+}
+```
 
-![Exercicio 1](Imagens/1.png)
+## As 12 consultas
 
-## 2 - Buscar o nome e ano dos filmes, ordenados por ordem crescente pelo ano
+Estão em [`database/sqlserver/02-consultas.sql`](database/sqlserver/02-consultas.sql) e são as mesmas exibidas no Laboratório SQL: o site lê o próprio arquivo, então os dois nunca ficam diferentes.
 
-![Exercicio 2](Imagens/2.png)
+| # | Pergunta | Recursos de SQL |
+|---|---|---|
+| 1 | Nome e ano dos filmes | `SELECT` |
+| 2 | Nome e ano, do mais antigo ao mais novo | `ORDER BY ASC` |
+| 3 | *De Volta para o Futuro*: nome, ano e duração | `WHERE =` |
+| 4 | Filmes lançados em 1997 | `WHERE =` |
+| 5 | Filmes lançados após 2000 | `WHERE >` |
+| 6 | Duração entre 100 e 150 minutos, crescente | `AND`, `ORDER BY` |
+| 7 | Quantidade de filmes por ano, decrescente | `GROUP BY`, `COUNT` |
+| 8 | Atores do gênero masculino | `WHERE` |
+| 9 | Atrizes, ordenadas pelo primeiro nome | `WHERE`, `ORDER BY` |
+| 10 | Filmes e seus gêneros | `INNER JOIN` ×2 |
+| 11 | Filmes do gênero *Mistério* | `INNER JOIN` + `WHERE` |
+| 12 | Filmes com elenco e papéis | `INNER JOIN` ×2 |
 
-## 3 - Buscar pelo filme de volta para o futuro, trazendo o nome, ano e a duração
+## API
 
-![Exercicio 3](Imagens/3.png)
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/filmes?busca=&genero=&anoDe=&anoAte=&duracaoDe=&duracaoAte=&ordem=nome\|ano\|duracao&direcao=asc\|desc` | Lista filmes com filtros |
+| GET | `/api/filmes/{id}` | Detalhe com gêneros e elenco |
+| POST / PUT / DELETE | `/api/filmes`, `/api/filmes/{id}` | Cadastra, edita e exclui |
+| POST / DELETE | `/api/filmes/{id}/elenco`, `/api/filmes/{id}/elenco/{idElenco}` | Escala e remove elenco |
+| GET / POST / PUT / DELETE | `/api/atores`, `/api/atores/{id}` | Atores e filmografia |
+| GET | `/api/generos` | Gêneros com quantidade de filmes |
+| GET | `/api/estatisticas` | Dados do painel |
+| GET | `/api/consultas`, `/api/consultas/{n}` | Laboratório SQL |
 
-## 4 - Buscar os filmes lançados em 1997
+Erros de validação voltam no padrão *ProblemDetails* (`400` com a lista de campos).
 
-![Exercicio 4](Imagens/4.png)
+## Estrutura
 
-## 5 - Buscar os filmes lançados APÓS o ano 2000
+```
+├── Abrir Claquete.cmd          # inicia o sistema com um clique
+├── database/
+│   ├── sqlserver/              # script do banco, as 12 consultas e melhorias
+│   └── sqlite/                 # esquema com chaves estrangeiras + carga inicial
+├── docs/
+│   ├── lean-inception.md
+│   └── diagrama.png
+├── src/Claquete.Api/
+│   ├── Dados/Banco.cs          # conexão e diferenças SQLite x SQL Server
+│   ├── Endpoints/              # filmes, atores, painel e laboratório
+│   ├── Modelos.cs              # DTOs e validações
+│   └── wwwroot/                # frontend (HTML, CSS, JS)
+└── tests/Claquete.Tests/       # testes de integração
+```
 
-![Exercicio 5](Imagens/5.png)
+## Modelo de dados
 
-## 6 - Buscar os filmes com a duracao maior que 100 e menor que 150, ordenando pela duracao em ordem crescente
+![Diagrama do banco de dados](docs/diagrama.png)
 
-![Exercicio 6](Imagens/6.png)
-
-## 7 - Buscar a quantidade de filmes lançadas no ano, agrupando por ano, ordenando pela duracao em ordem decrescente
-
-![Exercicio 7](Imagens/7.png)
-
-## 8 - Buscar os Atores do gênero masculino, retornando o PrimeiroNome, UltimoNome
-
-![Exercicio 8](Imagens/8.png)
-
-## 9 - Buscar os Atores do gênero feminino, retornando o PrimeiroNome, UltimoNome, e ordenando pelo PrimeiroNome
-
-![Exercicio 9](Imagens/9.png)
-
-## 10 - Buscar o nome do filme e o gênero
-
-![Exercicio 10](Imagens/10.png)
-
-## 11 - Buscar o nome do filme e o gênero do tipo "Mistério"
-
-![Exercicio 11](Imagens/11.png)
-
-## 12 - Buscar o nome do filme e os atores, trazendo o PrimeiroNome, UltimoNome e seu Papel
-
-![Exercicio 12](Imagens/12.png)
+- **Filmes** (Id, Nome, Ano, Duracao)
+- **Atores** (Id, PrimeiroNome, UltimoNome, Genero)
+- **Generos** (Id, Genero)
+- **ElencoFilme**: associação N:N entre filmes e atores, com o papel
+- **FilmesGenero**: associação N:N entre filmes e gêneros
