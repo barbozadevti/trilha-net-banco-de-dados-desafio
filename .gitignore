@@ -2,6 +2,6 @@ bin/
 obj/
 .vs/
 *.user
-src/Claquete.Api/dados/
+src/Claquete.Api/App_Data/
 TestResults/
 .claude/

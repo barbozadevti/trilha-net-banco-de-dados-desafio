@@ -5,7 +5,7 @@ using Claquete.Api.Endpoints;
 var builder = WebApplication.CreateBuilder(args);
 
 var opcoesBanco = builder.Configuration.GetSection("Banco").Get<OpcoesBanco>() ?? new OpcoesBanco();
-var pastaDados = Path.Combine(builder.Environment.ContentRootPath, "dados");
+var pastaDados = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 builder.Services.AddSingleton(new Banco(opcoesBanco, pastaDados));
 builder.Services.AddProblemDetails();
 

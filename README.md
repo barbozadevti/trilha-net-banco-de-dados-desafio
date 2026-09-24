@@ -35,7 +35,7 @@ Pré-requisito: [.NET 9 SDK](https://dotnet.microsoft.com/download).
 dotnet run --project src/Claquete.Api
 ```
 
-Na primeira execução, o banco SQLite é criado em `src/Claquete.Api/dados/claquete.db` e populado com o acervo original. Para voltar ao estado inicial, apague essa pasta.
+Na primeira execução, o banco SQLite é criado em `src/Claquete.Api/App_Data/claquete.db` e populado com o acervo original. Para voltar ao estado inicial, apague essa pasta.
 
 ### Testes
 
