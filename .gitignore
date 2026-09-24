@@ -1,7 +1,0 @@
-bin/
-obj/
-.vs/
-*.user
-src/Claquete.Api/App_Data/
-TestResults/
-.claude/
